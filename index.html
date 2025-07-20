@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APY Calculators</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif; /* Changed font to Space Grotesk */
+            background-color: #f0f4f8; /* Light blue-gray background */
+        }
+        .container {
+            max-width: 1200px; /* Increased max-width to accommodate three columns */
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+                flex-wrap: wrap; /* Allow wrapping for three columns */
+                justify-content: space-around;
+            }
+            .calculator-section, .performance-display-box { /* Apply flex properties to both types of boxes */
+                flex: 1 1 calc(33.333% - 2rem); /* Approx 3 columns with gap */
+                min-width: 300px; /* Ensure sections don't get too narrow */
+            }
+        }
+        .calculator-section, .performance-display-box { /* Combined styling for consistency */
+            background-color: #fdfefe; /* Slightly off-white for sections */
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0; /* Light border */
+        }
+        .performance-display-box {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .performance-display-box .performance-label {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        .performance-display-box .performance-value {
+            font-size: 2.5rem; /* Larger font for percentages */
+            font-weight: 700;
+            color: #312e81; /* Dark indigo */
+            margin-bottom: 0.5rem;
+        }
+        .performance-display-box .period-note {
+            font-size: 0.85rem;
+            color: #718096; /* Lighter gray for timestamp */
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #4a5568; /* Darker gray for labels */
+        }
+        .input-group input[type="number"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e0; /* Light gray border */
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #2d3748; /* Dark text */
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .input-group input[type="number"]:focus {
+            outline: none;
+            border-color: #6366f1; /* Indigo on focus */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .calculate-button {
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            background-color: #6366f1; /* Indigo */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+        .calculate-button:hover {
+            background-color: #4f46e5; /* Darker indigo on hover */
+            transform: translateY(-1px);
+        }
+        .result-display {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #e0e7ff; /* Lighter indigo background for result */
+            border-radius: 8px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #312e81; /* Dark indigo text */
+            text-align: center;
+            border: 1px solid #c7d2fe; /* Border for result */
+        }
+        .result-display p {
+            font-size: 1rem; /* Smaller font for individual lines in result */
+            font-weight: 400; /* Lighter weight for details */
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+        .result-display p:last-child {
+            margin-bottom: 0;
+        }
+        .result-display .main-result {
+            font-size: 1.5rem; /* Larger for the main monthly payment */
+            font-weight: 700;
+            color: #312e81;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            color: #dc2626; /* Red for errors */
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="container">
+        <!-- Performance Display Boxes -->
+        <div class="performance-display-box">
+            <div class="performance-label">Bitcoin (BTC)</div>
+            <div class="performance-value" id="bitcoinPerformance">83.9%</div>
+            <div class="period-note">Average Annual Return (Last 10 Years)</div>
+            <p class="text-xs text-gray-500 mt-2">
+                *Data from Curvo (2015-2025). Past performance is not indicative of future results.
+            </p>
+        </div>
+
+        <div class="performance-display-box">
+            <div class="performance-label">Ethereum (ETH)</div>
+            <div class="performance-value" id="ethereumPerformance">28.16%</div>
+            <div class="period-note">Average Annual Return (2017-2025)</div>
+            <p class="text-xs text-gray-500 mt-2">
+                *Data from Curvo. Past performance is not indicative of future results.
+            </p>
+        </div>
+
+        <div class="performance-display-box">
+            <div class="performance-label">Gold (XAU)</div>
+            <div class="performance-value" id="goldPerformance">10.3%</div>
+            <div class="period-note">Average Annual Return (Last 10 Years)</div>
+            <p class="text-xs text-gray-500 mt-2">
+                *Data from Curvo (2015-2025). Past performance is not indicative of future results.
+            </p>
+        </div>
+
+        <!-- Calculator 1: Future Value of a Single Sum -->
+        <div class="calculator-section">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Single Sum Future Value</h2>
+            <div class="input-group">
+                <label for="initialAmount">Initial Amount (USD)</label>
+                <input type="number" id="initialAmount" placeholder="e.g., 10000" min="0" step="0.01">
+                <p id="initialAmountError" class="error-message hidden">Please enter a valid initial amount.</p>
+            </div>
+            <div class="input-group">
+                <label for="singleAPY">Annual Yield (%)</label>
+                <input type="number" id="singleAPY" placeholder="e.g., 10" min="0" step="0.1">
+                <p id="singleAPYError" class="error-message hidden">Please enter a valid annual yield.</p>
+            </div>
+            <div class="input-group">
+                <label for="singleYears">Number of Years</label>
+                <input type="number" id="singleYears" placeholder="e.g., 10" min="0" step="1">
+                <p id="singleYearsError" class="error-message hidden">Please enter a valid number of years.</p>
+            </div>
+            <button class="calculate-button" onclick="calculateSingleSum()">Calculate Future Value</button>
+            <div id="singleSumResult" class="result-display mt-4 hidden"></div>
+        </div>
+
+        <!-- Calculator 2: Future Value of Monthly Savings (Annuity) -->
+        <div class="calculator-section">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Monthly Savings Future Value</h2>
+            <div class="input-group">
+                <label for="monthlySaving">Monthly Saving (USD)</label>
+                <input type="number" id="monthlySaving" placeholder="e.g., 357" min="0" step="0.01">
+                <p id="monthlySavingError" class="error-message hidden">Please enter a valid monthly saving amount.</p>
+            </div>
+            <div class="input-group">
+                <label for="monthlyAPY">Annual Yield (%)</label>
+                <input type="number" id="monthlyAPY" placeholder="e.g., 10" min="0" step="0.1">
+                <p id="monthlyAPYError" class="error-message hidden">Please enter a valid annual yield.</p>
+            </div>
+            <div class="input-group">
+                <label for="monthlyYears">Number of Years</label>
+                <input type="number" id="monthlyYears" placeholder="e.g., 10" min="0" step="1">
+                <p id="monthlyYearsError" class="error-message hidden">Please enter a valid number of years.</p>
+            </div>
+            <button class="calculate-button" onclick="calculateMonthlySavings()">Calculate Future Value</button>
+            <div id="monthlySavingsResult" class="result-display mt-4 hidden"></div>
+        </div>
+
+        <!-- Calculator 3: Mortgage Payment Calculator -->
+        <div class="calculator-section">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Mortgage Payment Calculator</h2>
+            <div class="input-group">
+                <label for="apartmentPrice">Apartment Price (USD)</label>
+                <input type="number" id="apartmentPrice" placeholder="e.g., 100000" min="0" step="0.01">
+                <p id="apartmentPriceError" class="error-message hidden">Please enter a valid apartment price.</p>
+            </div>
+            <div class="input-group">
+                <label for="downPayment">Down Payment (USD)</label>
+                <input type="number" id="downPayment" placeholder="e.g., 20000" min="0" step="0.01">
+                <p id="downPaymentError" class="error-message hidden">Please enter a valid down payment.</p>
+            </div>
+            <div class="input-group">
+                <label for="mortgageAPY">Annual Interest Rate (%)</label>
+                <input type="number" id="mortgageAPY" placeholder="e.g., 10" min="0" step="0.1">
+                <p id="mortgageAPYError" class="error-message hidden">Please enter a valid annual interest rate.</p>
+            </div>
+            <div class="input-group">
+                <label for="mortgageYears">Loan Term (Years)</label>
+                <input type="number" id="mortgageYears" placeholder="e.g., 10" min="1" step="1">
+                <p id="mortgageYearsError" class="error-message hidden">Please enter a valid loan term (at least 1 year).</p>
+            </div>
+            <button class="calculate-button" onclick="calculateMortgage()">Calculate Mortgage</button>
+            <div id="mortgageResult" class="result-display mt-4 hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // Function to validate input and show/hide error messages
+        function validateInput(inputElement, errorElement, minValue = 0) {
+            const value = parseFloat(inputElement.value);
+            if (isNaN(value) || value < minValue) {
+                errorElement.classList.remove('hidden');
+                return false;
+            } else {
+                errorElement.classList.add('hidden');
+                return true;
+            }
+        }
+
+        // Calculator 1: Single Sum Future Value
+        function calculateSingleSum() {
+            const initialAmountInput = document.getElementById('initialAmount');
+            const singleAPYInput = document.getElementById('singleAPY');
+            const singleYearsInput = document.getElementById('singleYears');
+            const resultDisplay = document.getElementById('singleSumResult');
+
+            const initialAmountError = document.getElementById('initialAmountError');
+            const singleAPYError = document.getElementById('singleAPYError');
+            const singleYearsError = document.getElementById('singleYearsError');
+
+            let isValid = true;
+            isValid = validateInput(initialAmountInput, initialAmountError) && isValid;
+            isValid = validateInput(singleAPYInput, singleAPYError) && isValid;
+            isValid = validateInput(singleYearsInput, singleYearsError) && isValid;
+
+            if (!isValid) {
+                resultDisplay.classList.add('hidden');
+                return;
+            }
+
+            const PV = parseFloat(initialAmountInput.value);
+            const r_percent = parseFloat(singleAPYInput.value);
+            const n = parseFloat(singleYearsInput.value);
+
+            const r = r_percent / 100; // Convert percentage to decimal
+
+            // FV = PV * (1 + r)^n
+            const FV = PV * Math.pow((1 + r), n);
+
+            resultDisplay.innerHTML = `<span class="main-result">Future Value: $${FV.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
+            resultDisplay.classList.remove('hidden');
+        }
+
+        // Calculator 2: Monthly Savings Future Value (Annuity)
+        function calculateMonthlySavings() {
+            const monthlySavingInput = document.getElementById('monthlySaving');
+            const monthlyAPYInput = document.getElementById('monthlyAPY');
+            const monthlyYearsInput = document.getElementById('monthlyYears');
+            const resultDisplay = document.getElementById('monthlySavingsResult');
+
+            const monthlySavingError = document.getElementById('monthlySavingError');
+            const monthlyAPYError = document.getElementById('monthlyAPYError');
+            const monthlyYearsError = document.getElementById('monthlyYearsError');
+
+            let isValid = true;
+            isValid = validateInput(monthlySavingInput, monthlySavingError) && isValid;
+            isValid = validateInput(monthlyAPYInput, monthlyAPYError) && isValid;
+            isValid = validateInput(monthlyYearsInput, monthlyYearsError) && isValid;
+
+            if (!isValid) {
+                resultDisplay.classList.add('hidden');
+                return;
+            }
+
+            const P = parseFloat(monthlySavingInput.value);
+            const r_annual_percent = parseFloat(monthlyAPYInput.value);
+            const years = parseFloat(monthlyYearsInput.value);
+
+            const r_annual = r_annual_percent / 100; // Convert annual percentage to decimal
+            const r_monthly = r_annual / 12; // Monthly interest rate
+            const n_total_months = years * 12; // Total number of payments
+
+            let FV;
+            if (r_monthly === 0) {
+                // Simple sum if interest rate is 0
+                FV = P * n_total_months;
+            } else {
+                // FV = P * [((1 + r_monthly)^n_total_months - 1) / r_monthly]
+                FV = P * ((Math.pow((1 + r_monthly), n_total_months) - 1) / r_monthly);
+            }
+
+            resultDisplay.innerHTML = `<span class="main-result">Future Value: $${FV.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
+            resultDisplay.classList.remove('hidden');
+        }
+
+        // Calculator 3: Mortgage Payment Calculator
+        function calculateMortgage() {
+            const apartmentPriceInput = document.getElementById('apartmentPrice');
+            const downPaymentInput = document.getElementById('downPayment');
+            const mortgageAPYInput = document.getElementById('mortgageAPY');
+            const mortgageYearsInput = document.getElementById('mortgageYears');
+            const resultDisplay = document.getElementById('mortgageResult');
+
+            const apartmentPriceError = document.getElementById('apartmentPriceError');
+            const downPaymentError = document.getElementById('downPaymentError');
+            const mortgageAPYError = document.getElementById('mortgageAPYError');
+            const mortgageYearsError = document.getElementById('mortgageYearsError');
+
+            let isValid = true;
+            isValid = validateInput(apartmentPriceInput, apartmentPriceError) && isValid;
+            isValid = validateInput(downPaymentInput, downPaymentError) && isValid;
+            isValid = validateInput(mortgageAPYInput, mortgageAPYError) && isValid;
+            isValid = validateInput(mortgageYearsInput, mortgageYearsError, 1) && isValid; // Min years is 1
+
+            if (!isValid) {
+                resultDisplay.classList.add('hidden');
+                return;
+            }
+
+            const apartmentPrice = parseFloat(apartmentPriceInput.value);
+            const downPayment = parseFloat(downPaymentInput.value);
+            const annualInterestRate_percent = parseFloat(mortgageAPYInput.value);
+            const loanTermYears = parseFloat(mortgageYearsInput.value);
+
+            if (downPayment > apartmentPrice) {
+                downPaymentError.textContent = "Down payment cannot be greater than apartment price.";
+                downPaymentError.classList.remove('hidden');
+                resultDisplay.classList.add('hidden');
+                return;
+            } else {
+                downPaymentError.classList.add('hidden');
+            }
+
+            const principal = apartmentPrice - downPayment;
+            const annualInterestRate = annualInterestRate_percent / 100; // Convert percentage to decimal
+            const monthlyInterestRate = annualInterestRate / 12;
+            const numberOfPayments = loanTermYears * 12;
+
+            let monthlyPayment;
+            if (monthlyInterestRate === 0) {
+                monthlyPayment = principal / numberOfPayments;
+            } else {
+                monthlyPayment = principal * (monthlyInterestRate * Math.pow((1 + monthlyInterestRate), numberOfPayments)) / (Math.pow((1 + monthlyInterestRate), numberOfPayments) - 1);
+            }
+
+            const totalMortgagePayments = monthlyPayment * numberOfPayments;
+            const totalInterestPaid = totalMortgagePayments - principal;
+            const totalAmountPaid = totalMortgagePayments + downPayment;
+
+
+            resultDisplay.innerHTML = `
+                <span class="main-result">Monthly Payment: $${monthlyPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                <p>Total Interest Paid: $${totalInterestPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <p>Total Amount Paid: $${totalAmountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            `;
+            resultDisplay.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
