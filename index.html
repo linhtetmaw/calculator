@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APY Calculators</title>
+    <title>Mortgage & Future Value Calculator</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts - Space Grotesk -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Space Grotesk', sans-serif; /* Changed font to Space Grotesk */
+            font-family: 'Space Grotesk', sans-serif;
             background-color: #f0f4f8; /* Light blue-gray background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 1200px; /* Increased max-width to accommodate three columns */
-            margin: 2rem auto;
+        .main-content-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
             padding: 2rem;
             background-color: #ffffff;
             border-radius: 12px;
@@ -25,22 +31,23 @@
             gap: 2rem;
         }
         @media (min-width: 768px) {
-            .container {
-                flex-direction: row;
-                flex-wrap: wrap; /* Allow wrapping for three columns */
+            .main-content-wrapper .grid-container {
+                display: flex;
+                flex-wrap: wrap;
                 justify-content: space-around;
+                gap: 2rem; /* Gap between grid items */
             }
-            .calculator-section, .performance-display-box { /* Apply flex properties to both types of boxes */
+            .calculator-section, .performance-display-box {
                 flex: 1 1 calc(33.333% - 2rem); /* Approx 3 columns with gap */
                 min-width: 300px; /* Ensure sections don't get too narrow */
             }
         }
-        .calculator-section, .performance-display-box { /* Combined styling for consistency */
-            background-color: #fdfefe; /* Slightly off-white for sections */
+        .calculator-section, .performance-display-box {
+            background-color: #fdfefe;
             padding: 1.5rem;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e2e8f0; /* Light border */
+            border: 1px solid #e2e8f0;
         }
         .performance-display-box {
             text-align: center;
@@ -56,14 +63,14 @@
             margin-bottom: 0.5rem;
         }
         .performance-display-box .performance-value {
-            font-size: 2.5rem; /* Larger font for percentages */
+            font-size: 2.5rem;
             font-weight: 700;
-            color: #312e81; /* Dark indigo */
+            color: #312e81;
             margin-bottom: 0.5rem;
         }
         .performance-display-box .period-note {
             font-size: 0.85rem;
-            color: #718096; /* Lighter gray for timestamp */
+            color: #718096;
         }
         .input-group {
             margin-bottom: 1rem;
@@ -72,26 +79,26 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
-            color: #4a5568; /* Darker gray for labels */
+            color: #4a5568;
         }
-        .input-group input[type="number"] {
+        .input-group input[type="number"], .input-group input[type="text"] {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #cbd5e0; /* Light gray border */
+            border: 1px solid #cbd5e0;
             border-radius: 8px;
             font-size: 1rem;
-            color: #2d3748; /* Dark text */
+            color: #2d3748;
             transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        .input-group input[type="number"]:focus {
+        .input-group input[type="number"]:focus, .input-group input[type="text"]:focus {
             outline: none;
-            border-color: #6366f1; /* Indigo on focus */
+            border-color: #6366f1;
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
         .calculate-button {
             width: 100%;
             padding: 0.85rem 1.5rem;
-            background-color: #6366f1; /* Indigo */
+            background-color: #6366f1;
             color: white;
             border: none;
             border-radius: 8px;
@@ -102,23 +109,23 @@
             box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
         }
         .calculate-button:hover {
-            background-color: #4f46e5; /* Darker indigo on hover */
+            background-color: #4f46e5;
             transform: translateY(-1px);
         }
         .result-display {
             margin-top: 1.5rem;
             padding: 1rem;
-            background-color: #e0e7ff; /* Lighter indigo background for result */
+            background-color: #e0e7ff;
             border-radius: 8px;
             font-size: 1.25rem;
             font-weight: 700;
-            color: #312e81; /* Dark indigo text */
+            color: #312e81;
             text-align: center;
-            border: 1px solid #c7d2fe; /* Border for result */
+            border: 1px solid #c7d2fe;
         }
         .result-display p {
-            font-size: 1rem; /* Smaller font for individual lines in result */
-            font-weight: 400; /* Lighter weight for details */
+            font-size: 1rem;
+            font-weight: 400;
             margin-bottom: 0.5rem;
             color: #4a5568;
         }
@@ -126,121 +133,199 @@
             margin-bottom: 0;
         }
         .result-display .main-result {
-            font-size: 1.5rem; /* Larger for the main monthly payment */
+            font-size: 1.5rem;
             font-weight: 700;
             color: #312e81;
             margin-bottom: 1rem;
         }
         .error-message {
-            color: #dc2626; /* Red for errors */
+            color: #dc2626;
             font-size: 0.9rem;
             margin-top: 0.5rem;
+        }
+
+        /* Binance Loan Calculator Specific Styles */
+        .binance-loan-calculator-section {
+            max-width: 500px; /* Constrain width for this specific calculator */
+            margin: 2rem auto; /* Center it below the main grid */
+            padding: 2.5rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: none; /* Hidden by default */
+        }
+        .binance-logo-container {
+            margin-bottom: 1.5rem;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .binance-logo-container img {
+            max-height: 100%;
+            width: auto;
+            border-radius: 8px;
+        }
+        .binance-loan-calculator-section .calculate-button {
+            background-color: #F0B90B; /* Binance Yellow */
+            box-shadow: 0 4px 10px rgba(240, 185, 11, 0.3);
+        }
+        .binance-loan-calculator-section .calculate-button:hover {
+            background-color: #e0ac0a; /* Slightly darker yellow on hover */
+        }
+        .binance-loan-calculator-section .result-display .label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        .binance-loan-calculator-section .result-display span {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #312e81;
         }
     </style>
 </head>
 <body class="p-4">
-    <div class="container">
+    <div class="main-content-wrapper">
         <!-- Performance Display Boxes -->
-        <div class="performance-display-box">
-            <div class="performance-label">Bitcoin (BTC)</div>
-            <div class="performance-value" id="bitcoinPerformance">83.9%</div>
-            <div class="period-note">Average Annual Return (Last 10 Years)</div>
-            <p class="text-xs text-gray-500 mt-2">
-                *Data from Curvo (2015-2025). Past performance is not indicative of future results.
-            </p>
+        <div class="grid-container" id="mainCalculatorsAndPerformance">
+            <div class="performance-display-box">
+                <div class="performance-label">Bitcoin (BTC)</div>
+                <div class="performance-value" id="bitcoinPerformance">83.9%</div>
+                <div class="period-note">Average Annual Return (Last 10 Years)</div>
+                <p class="text-xs text-gray-500 mt-2">
+                    *Data from Curvo (2015-2025). Past performance is not indicative of future results.
+                </p>
+            </div>
+
+            <div class="performance-display-box">
+                <div class="performance-label">Ethereum (ETH)</div>
+                <div class="performance-value" id="ethereumPerformance">28.16%</div>
+                <div class="period-note">Average Annual Return (2017-2025)</div>
+                <p class="text-xs text-gray-500 mt-2">
+                    *Data from Curvo. Past performance is not indicative of future results.
+                </p>
+            </div>
+
+            <div class="performance-display-box">
+                <div class="performance-label">Gold (XAU)</div>
+                <div class="performance-value" id="goldPerformance">10.3%</div>
+                <div class="period-note">Average Annual Return (Last 10 Years)</div>
+                <p class="text-xs text-gray-500 mt-2">
+                    *Data from Curvo (2015-2025). Past performance is not indicative of future results.
+                </p>
+            </div>
+
+            <!-- Calculator 1: Future Value of a Single Sum -->
+            <div class="calculator-section">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Single Sum Future Value</h2>
+                <div class="input-group">
+                    <label for="initialAmount">Initial Amount (USD)</label>
+                    <input type="number" id="initialAmount" placeholder="e.g., 10000" min="0" step="0.01">
+                    <p id="initialAmountError" class="error-message hidden">Please enter a valid initial amount.</p>
+                </div>
+                <div class="input-group">
+                    <label for="singleAPY">Annual Yield (%)</label>
+                    <input type="number" id="singleAPY" placeholder="e.g., 10" min="0" step="0.1">
+                    <p id="singleAPYError" class="error-message hidden">Please enter a valid annual yield.</p>
+                </div>
+                <div class="input-group">
+                    <label for="singleYears">Number of Years</label>
+                    <input type="number" id="singleYears" placeholder="e.g., 10" min="0" step="1">
+                    <p id="singleYearsError" class="error-message hidden">Please enter a valid number of years.</p>
+                </div>
+                <button class="calculate-button" onclick="calculateSingleSum()">Calculate Future Value</button>
+                <div id="singleSumResult" class="result-display mt-4 hidden"></div>
+            </div>
+
+            <!-- Calculator 2: Future Value of Monthly Savings (Annuity) -->
+            <div class="calculator-section">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Monthly Savings Future Value</h2>
+                <div class="input-group">
+                    <label for="monthlySaving">Monthly Saving (USD)</label>
+                    <input type="number" id="monthlySaving" placeholder="e.g., 357" min="0" step="0.01">
+                    <p id="monthlySavingError" class="error-message hidden">Please enter a valid monthly saving amount.</p>
+                </div>
+                <div class="input-group">
+                    <label for="monthlyAPY">Annual Yield (%)</label>
+                    <input type="number" id="monthlyAPY" placeholder="e.g., 10" min="0" step="0.1">
+                    <p id="monthlyAPYError" class="error-message hidden">Please enter a valid annual yield.</p>
+                </div>
+                <div class="input-group">
+                    <label for="monthlyYears">Number of Years</label>
+                    <input type="number" id="monthlyYears" placeholder="e.g., 10" min="0" step="1">
+                    <p id="monthlyYearsError" class="error-message hidden">Please enter a valid number of years.</p>
+                </div>
+                <button class="calculate-button" onclick="calculateMonthlySavings()">Calculate Future Value</button>
+                <div id="monthlySavingsResult" class="result-display mt-4 hidden"></div>
+            </div>
+
+            <!-- Calculator 3: Mortgage Payment Calculator -->
+            <div class="calculator-section">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Mortgage Payment Calculator</h2>
+                <div class="input-group">
+                    <label for="apartmentPrice">Apartment Price (USD)</label>
+                    <input type="number" id="apartmentPrice" placeholder="e.g., 100000" min="0" step="0.01">
+                    <p id="apartmentPriceError" class="error-message hidden">Please enter a valid apartment price.</p>
+                </div>
+                <div class="input-group">
+                    <label for="downPayment">Down Payment (USD)</label>
+                    <input type="number" id="downPayment" placeholder="e.g., 20000" min="0" step="0.01">
+                    <p id="downPaymentError" class="error-message hidden">Please enter a valid down payment.</p>
+                </div>
+                <div class="input-group">
+                    <label for="mortgageAPY">Annual Interest Rate (%)</label>
+                    <input type="number" id="mortgageAPY" placeholder="e.g., 10" min="0" step="0.1">
+                    <p id="mortgageAPYError" class="error-message hidden">Please enter a valid annual interest rate.</p>
+                </div>
+                <div class="input-group">
+                    <label for="mortgageYears">Loan Term (Years)</label>
+                    <input type="number" id="mortgageYears" placeholder="e.g., 10" min="1" step="1">
+                    <p id="mortgageYearsError" class="error-message hidden">Please enter a valid loan term (at least 1 year).</p>
+                </div>
+                <button class="calculate-button" onclick="calculateMortgage()">Calculate Mortgage</button>
+                <div id="mortgageResult" class="result-display mt-4 hidden"></div>
+            </div>
         </div>
 
-        <div class="performance-display-box">
-            <div class="performance-label">Ethereum (ETH)</div>
-            <div class="performance-value" id="ethereumPerformance">28.16%</div>
-            <div class="period-note">Average Annual Return (2017-2025)</div>
-            <p class="text-xs text-gray-500 mt-2">
-                *Data from Curvo. Past performance is not indicative of future results.
-            </p>
+        <!-- Binance Loan Calculator Button -->
+        <div class="binance-button-container">
+            <button class="calculate-button" onclick="toggleBinanceCalculator()">Binance Loan Calculator</button>
         </div>
 
-        <div class="performance-display-box">
-            <div class="performance-label">Gold (XAU)</div>
-            <div class="performance-value" id="goldPerformance">10.3%</div>
-            <div class="period-note">Average Annual Return (Last 10 Years)</div>
-            <p class="text-xs text-gray-500 mt-2">
-                *Data from Curvo (2015-2025). Past performance is not indicative of future results.
-            </p>
-        </div>
+        <!-- Binance Loan Calculator Section -->
+        <div class="binance-loan-calculator-section" id="binanceCalculatorSection">
+            <div class="binance-logo-container">
+                <img src="https://placehold.co/120x60/F0B90B/FFFFFF?text=BINANCE" alt="Binance Logo Placeholder">
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">Binance Loan Calculator</h1>
 
-        <!-- Calculator 1: Future Value of a Single Sum -->
-        <div class="calculator-section">
-            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Single Sum Future Value</h2>
             <div class="input-group">
-                <label for="initialAmount">Initial Amount (USD)</label>
-                <input type="number" id="initialAmount" placeholder="e.g., 10000" min="0" step="0.01">
-                <p id="initialAmountError" class="error-message hidden">Please enter a valid initial amount.</p>
+                <label for="annualInterestRateBinance">Annual Interest Rate</label>
+                <input type="text" id="annualInterestRateBinance" value="8.53%" readonly class="bg-gray-100 cursor-not-allowed">
             </div>
-            <div class="input-group">
-                <label for="singleAPY">Annual Yield (%)</label>
-                <input type="number" id="singleAPY" placeholder="e.g., 10" min="0" step="0.1">
-                <p id="singleAPYError" class="error-message hidden">Please enter a valid annual yield.</p>
-            </div>
-            <div class="input-group">
-                <label for="singleYears">Number of Years</label>
-                <input type="number" id="singleYears" placeholder="e.g., 10" min="0" step="1">
-                <p id="singleYearsError" class="error-message hidden">Please enter a valid number of years.</p>
-            </div>
-            <button class="calculate-button" onclick="calculateSingleSum()">Calculate Future Value</button>
-            <div id="singleSumResult" class="result-display mt-4 hidden"></div>
-        </div>
 
-        <!-- Calculator 2: Future Value of Monthly Savings (Annuity) -->
-        <div class="calculator-section">
-            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Monthly Savings Future Value</h2>
             <div class="input-group">
-                <label for="monthlySaving">Monthly Saving (USD)</label>
-                <input type="number" id="monthlySaving" placeholder="e.g., 357" min="0" step="0.01">
-                <p id="monthlySavingError" class="error-message hidden">Please enter a valid monthly saving amount.</p>
+                <label for="loanAmountBinance">Loan Amount (USD)</label>
+                <input type="number" id="loanAmountBinance" placeholder="e.g., 1000" min="0" step="0.01">
+                <p id="loanAmountBinanceError" class="error-message hidden">Please enter a valid loan amount.</p>
             </div>
-            <div class="input-group">
-                <label for="monthlyAPY">Annual Yield (%)</label>
-                <input type="number" id="monthlyAPY" placeholder="e.g., 10" min="0" step="0.1">
-                <p id="monthlyAPYError" class="error-message hidden">Please enter a valid annual yield.</p>
-            </div>
-            <div class="input-group">
-                <label for="monthlyYears">Number of Years</label>
-                <input type="number" id="monthlyYears" placeholder="e.g., 10" min="0" step="1">
-                <p id="monthlyYearsError" class="error-message hidden">Please enter a valid number of years.</p>
-            </div>
-            <button class="calculate-button" onclick="calculateMonthlySavings()">Calculate Future Value</button>
-            <div id="monthlySavingsResult" class="result-display mt-4 hidden"></div>
-        </div>
 
-        <!-- Calculator 3: Mortgage Payment Calculator -->
-        <div class="calculator-section">
-            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Mortgage Payment Calculator</h2>
-            <div class="input-group">
-                <label for="apartmentPrice">Apartment Price (USD)</label>
-                <input type="number" id="apartmentPrice" placeholder="e.g., 100000" min="0" step="0.01">
-                <p id="apartmentPriceError" class="error-message hidden">Please enter a valid apartment price.</p>
+            <button class="calculate-button" onclick="calculateDailyInterestBinance()">Calculate Daily Interest</button>
+
+            <div id="dailyInterestResultBinance" class="result-display hidden">
+                <div class="label">Daily Interest Amount:</div>
+                <span id="dailyInterestValueBinance"></span>
             </div>
-            <div class="input-group">
-                <label for="downPayment">Down Payment (USD)</label>
-                <input type="number" id="downPayment" placeholder="e.g., 20000" min="0" step="0.01">
-                <p id="downPaymentError" class="error-message hidden">Please enter a valid down payment.</p>
-            </div>
-            <div class="input-group">
-                <label for="mortgageAPY">Annual Interest Rate (%)</label>
-                <input type="number" id="mortgageAPY" placeholder="e.g., 10" min="0" step="0.1">
-                <p id="mortgageAPYError" class="error-message hidden">Please enter a valid annual interest rate.</p>
-            </div>
-            <div class="input-group">
-                <label for="mortgageYears">Loan Term (Years)</label>
-                <input type="number" id="mortgageYears" placeholder="e.g., 10" min="1" step="1">
-                <p id="mortgageYearsError" class="error-message hidden">Please enter a valid loan term (at least 1 year).</p>
-            </div>
-            <button class="calculate-button" onclick="calculateMortgage()">Calculate Mortgage</button>
-            <div id="mortgageResult" class="result-display mt-4 hidden"></div>
         </div>
     </div>
 
     <script>
+        // Fixed annual interest rate for Binance Loan Calculator
+        const ANNUAL_INTEREST_RATE_BINANCE_PERCENT = 8.53; // 8.53%
+
         // Function to validate input and show/hide error messages
         function validateInput(inputElement, errorElement, minValue = 0) {
             const value = parseFloat(inputElement.value);
@@ -390,6 +475,57 @@
                 <p>Total Amount Paid: $${totalAmountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             `;
             resultDisplay.classList.remove('hidden');
+        }
+
+        // Binance Loan Calculator Function
+        function calculateDailyInterestBinance() {
+            const loanAmountInput = document.getElementById('loanAmountBinance');
+            const dailyInterestResultDisplay = document.getElementById('dailyInterestResultBinance');
+            const dailyInterestValueSpan = document.getElementById('dailyInterestValueBinance');
+            const loanAmountError = document.getElementById('loanAmountBinanceError');
+
+            let isValid = validateInput(loanAmountInput, loanAmountError);
+
+            if (!isValid) {
+                dailyInterestResultDisplay.classList.add('hidden');
+                return;
+            }
+
+            const loanAmount = parseFloat(loanAmountInput.value);
+            const annualInterestRateDecimal = ANNUAL_INTEREST_RATE_BINANCE_PERCENT / 100;
+
+            // Daily Interest = (Loan Amount * Annual Interest Rate) / 365
+            const dailyInterest = (loanAmount * annualInterestRateDecimal) / 365;
+
+            dailyInterestValueSpan.textContent = `$${dailyInterest.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`;
+            dailyInterestResultDisplay.classList.remove('hidden');
+        }
+
+        // Function to toggle visibility of Binance Loan Calculator
+        function toggleBinanceCalculator() {
+            const mainCalculators = document.getElementById('mainCalculatorsAndPerformance');
+            const binanceCalculator = document.getElementById('binanceCalculatorSection');
+            const binanceButton = document.querySelector('.binance-button-container .calculate-button');
+
+            if (binanceCalculator.style.display === 'none' || binanceCalculator.style.display === '') {
+                // Show Binance calculator, hide others
+                mainCalculators.style.display = 'none';
+                binanceCalculator.style.display = 'block'; // Use block for centering
+                binanceButton.textContent = 'Back to Financial Calculators';
+                binanceButton.style.backgroundColor = '#4a5568'; /* Darker gray for "Back" button */
+                binanceButton.style.boxShadow = '0 4px 10px rgba(74, 85, 104, 0.3)';
+                binanceButton.onmouseover = function() { this.style.backgroundColor = '#2d3748'; };
+                binanceButton.onmouseout = function() { this.style.backgroundColor = '#4a5568'; };
+            } else {
+                // Hide Binance calculator, show others
+                mainCalculators.style.display = 'flex'; /* Revert to flex for grid layout */
+                binanceCalculator.style.display = 'none';
+                binanceButton.textContent = 'Binance Loan Calculator';
+                binanceButton.style.backgroundColor = '#F0B90B'; /* Binance Yellow */
+                binanceButton.style.boxShadow = '0 4px 10px rgba(240, 185, 11, 0.3)';
+                binanceButton.onmouseover = function() { this.style.backgroundColor = '#e0ac0a'; };
+                binanceButton.onmouseout = function() { this.style.backgroundColor = '#F0B90B'; };
+            }
         }
     </script>
 </body>
