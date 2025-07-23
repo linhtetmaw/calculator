@@ -144,16 +144,39 @@
             margin-top: 0.5rem;
         }
 
-        /* Binance Loan Calculator Specific Styles */
-        .binance-loan-calculator-section {
-            max-width: 500px; /* Constrain width for this specific calculator */
-            margin: 2rem auto; /* Center it below the main grid */
-            padding: 2.5rem;
+        /* Binance Calculators Container and Specific Styles */
+        .binance-calculators-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 2rem;
             background-color: #ffffff;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            text-align: center;
             display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 2rem;
+        }
+        @media (min-width: 768px) {
+            .binance-calculators-wrapper {
+                display: flex; /* Always flex for desktop for internal layout */
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-around;
+            }
+            .binance-loan-calculator-section, .binance-earn-calculator-section {
+                flex: 1 1 calc(50% - 1rem); /* Two columns for Binance calculators */
+                min-width: 350px; /* Ensure sections don't get too narrow */
+            }
+        }
+
+        .binance-loan-calculator-section, .binance-earn-calculator-section {
+            background-color: #fdfefe;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            text-align: center;
         }
         .binance-logo-container {
             margin-bottom: 1.5rem;
@@ -167,23 +190,33 @@
             width: auto;
             border-radius: 8px;
         }
-        .binance-loan-calculator-section .calculate-button {
+        .binance-loan-calculator-section .calculate-button,
+        .binance-earn-calculator-section .calculate-button {
             background-color: #F0B90B; /* Binance Yellow */
             box-shadow: 0 4px 10px rgba(240, 185, 11, 0.3);
         }
-        .binance-loan-calculator-section .calculate-button:hover {
+        .binance-loan-calculator-section .calculate-button:hover,
+        .binance-earn-calculator-section .calculate-button:hover {
             background-color: #e0ac0a; /* Slightly darker yellow on hover */
         }
-        .binance-loan-calculator-section .result-display .label {
+        .binance-loan-calculator-section .result-display .label,
+        .binance-earn-calculator-section .result-display .label {
             font-size: 1.1rem;
             font-weight: 600;
             color: #4a5568;
             margin-bottom: 0.5rem;
         }
-        .binance-loan-calculator-section .result-display span {
+        .binance-loan-calculator-section .result-display span,
+        .binance-earn-calculator-section .result-display span {
             font-size: 1.6rem;
             font-weight: 700;
             color: #312e81;
+        }
+        .binance-button-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem; /* Spacing from the calculators */
         }
     </style>
 </head>
@@ -290,41 +323,72 @@
             </div>
         </div>
 
-        <!-- Binance Loan Calculator Button -->
+        <!-- Binance Loan/Earn Calculator Toggle Button -->
         <div class="binance-button-container">
-            <button class="calculate-button" onclick="toggleBinanceCalculator()">Binance Loan Calculator</button>
+            <button class="calculate-button" onclick="toggleBinanceCalculators()">Binance Calculators</button>
         </div>
 
-        <!-- Binance Loan Calculator Section -->
-        <div class="binance-loan-calculator-section" id="binanceCalculatorSection">
-            <div class="binance-logo-container">
-                <img src="https://placehold.co/120x60/F0B90B/FFFFFF?text=BINANCE" alt="Binance Logo Placeholder">
+        <!-- Binance Calculators Wrapper (contains both Loan and Earn) -->
+        <div class="binance-calculators-wrapper" id="binanceCalculatorsWrapper">
+            <!-- Binance Loan Calculator Section -->
+            <div class="binance-loan-calculator-section">
+                <div class="binance-logo-container">
+                    <img src="https://placehold.co/120x60/F0B90B/FFFFFF?text=BINANCE" alt="Binance Logo Placeholder">
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Binance Loan Calculator</h2>
+
+                <div class="input-group">
+                    <label for="annualInterestRateBinanceLoan">Annual Interest Rate</label>
+                    <input type="text" id="annualInterestRateBinanceLoan" value="8.53%" readonly class="bg-gray-100 cursor-not-allowed">
+                </div>
+
+                <div class="input-group">
+                    <label for="loanAmountBinance">Loan Amount (USD)</label>
+                    <input type="number" id="loanAmountBinance" placeholder="e.g., 1000" min="0" step="0.01">
+                    <p id="loanAmountBinanceError" class="error-message hidden">Please enter a valid loan amount.</p>
+                </div>
+
+                <button class="calculate-button" onclick="calculateDailyInterestBinanceLoan()">Calculate Daily Interest</button>
+
+                <div id="dailyInterestResultBinanceLoan" class="result-display hidden">
+                    <div class="label">Daily Interest Amount:</div>
+                    <span id="dailyInterestValueBinanceLoan"></span>
+                </div>
             </div>
-            <h1 class="text-3xl font-bold text-gray-800 mb-8">Binance Loan Calculator</h1>
 
-            <div class="input-group">
-                <label for="annualInterestRateBinance">Annual Interest Rate</label>
-                <input type="text" id="annualInterestRateBinance" value="8.53%" readonly class="bg-gray-100 cursor-not-allowed">
-            </div>
+            <!-- Binance Earn Interest Calculator Section -->
+            <div class="binance-earn-calculator-section">
+                <div class="binance-logo-container">
+                    <img src="https://placehold.co/120x60/F0B90B/FFFFFF?text=BINANCE" alt="Binance Logo Placeholder">
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Binance Earn Interest Calculator</h2>
 
-            <div class="input-group">
-                <label for="loanAmountBinance">Loan Amount (USD)</label>
-                <input type="number" id="loanAmountBinance" placeholder="e.g., 1000" min="0" step="0.01">
-                <p id="loanAmountBinanceError" class="error-message hidden">Please enter a valid loan amount.</p>
-            </div>
+                <div class="input-group">
+                    <label for="annualInterestRateBinanceEarn">Annual Interest Rate</label>
+                    <input type="text" id="annualInterestRateBinanceEarn" value="4.2%" readonly class="bg-gray-100 cursor-not-allowed">
+                </div>
 
-            <button class="calculate-button" onclick="calculateDailyInterestBinance()">Calculate Daily Interest</button>
+                <div class="input-group">
+                    <label for="usdtAmountBinanceEarn">USDT Amount</label>
+                    <input type="number" id="usdtAmountBinanceEarn" placeholder="e.g., 500" min="0" step="0.01">
+                    <p id="usdtAmountBinanceEarnError" class="error-message hidden">Please enter a valid USDT amount.</p>
+                </div>
 
-            <div id="dailyInterestResultBinance" class="result-display hidden">
-                <div class="label">Daily Interest Amount:</div>
-                <span id="dailyInterestValueBinance"></span>
+                <button class="calculate-button" onclick="calculateDailyEarnBinanceEarn()">Calculate Daily Earn</button>
+
+                <div id="dailyEarnResultBinanceEarn" class="result-display hidden">
+                    <div class="label">Daily Earn Amount:</div>
+                    <span id="dailyEarnValueBinanceEarn"></span>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         // Fixed annual interest rate for Binance Loan Calculator
-        const ANNUAL_INTEREST_RATE_BINANCE_PERCENT = 8.53; // 8.53%
+        const ANNUAL_INTEREST_RATE_BINANCE_LOAN_PERCENT = 8.53; // 8.53%
+        // Fixed annual interest rate for Binance Earn Calculator
+        const ANNUAL_INTEREST_RATE_BINANCE_EARN_PERCENT = 4.2; // 4.2%
 
         // Function to validate input and show/hide error messages
         function validateInput(inputElement, errorElement, minValue = 0) {
@@ -478,10 +542,10 @@
         }
 
         // Binance Loan Calculator Function
-        function calculateDailyInterestBinance() {
+        function calculateDailyInterestBinanceLoan() {
             const loanAmountInput = document.getElementById('loanAmountBinance');
-            const dailyInterestResultDisplay = document.getElementById('dailyInterestResultBinance');
-            const dailyInterestValueSpan = document.getElementById('dailyInterestValueBinance');
+            const dailyInterestResultDisplay = document.getElementById('dailyInterestResultBinanceLoan');
+            const dailyInterestValueSpan = document.getElementById('dailyInterestValueBinanceLoan');
             const loanAmountError = document.getElementById('loanAmountBinanceError');
 
             let isValid = validateInput(loanAmountInput, loanAmountError);
@@ -492,7 +556,7 @@
             }
 
             const loanAmount = parseFloat(loanAmountInput.value);
-            const annualInterestRateDecimal = ANNUAL_INTEREST_RATE_BINANCE_PERCENT / 100;
+            const annualInterestRateDecimal = ANNUAL_INTEREST_RATE_BINANCE_LOAN_PERCENT / 100;
 
             // Daily Interest = (Loan Amount * Annual Interest Rate) / 365
             const dailyInterest = (loanAmount * annualInterestRateDecimal) / 365;
@@ -501,26 +565,51 @@
             dailyInterestResultDisplay.classList.remove('hidden');
         }
 
-        // Function to toggle visibility of Binance Loan Calculator
-        function toggleBinanceCalculator() {
+        // Binance Earn Interest Calculator Function
+        function calculateDailyEarnBinanceEarn() {
+            const usdtAmountInput = document.getElementById('usdtAmountBinanceEarn');
+            const dailyEarnResultDisplay = document.getElementById('dailyEarnResultBinanceEarn');
+            const dailyEarnValueSpan = document.getElementById('dailyEarnValueBinanceEarn');
+            const usdtAmountError = document.getElementById('usdtAmountBinanceEarnError');
+
+            let isValid = validateInput(usdtAmountInput, usdtAmountError);
+
+            if (!isValid) {
+                dailyEarnResultDisplay.classList.add('hidden');
+                return;
+            }
+
+            const usdtAmount = parseFloat(usdtAmountInput.value);
+            const annualInterestRateDecimal = ANNUAL_INTEREST_RATE_BINANCE_EARN_PERCENT / 100;
+
+            // Daily Earn = (USDT Amount * Annual Interest Rate) / 365
+            const dailyEarn = (usdtAmount * annualInterestRateDecimal) / 365;
+
+            dailyEarnValueSpan.textContent = `$${dailyEarn.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`;
+            dailyEarnResultDisplay.classList.remove('hidden');
+        }
+
+
+        // Function to toggle visibility of Binance Calculators
+        function toggleBinanceCalculators() {
             const mainCalculators = document.getElementById('mainCalculatorsAndPerformance');
-            const binanceCalculator = document.getElementById('binanceCalculatorSection');
+            const binanceCalculatorsWrapper = document.getElementById('binanceCalculatorsWrapper');
             const binanceButton = document.querySelector('.binance-button-container .calculate-button');
 
-            if (binanceCalculator.style.display === 'none' || binanceCalculator.style.display === '') {
-                // Show Binance calculator, hide others
+            if (binanceCalculatorsWrapper.style.display === 'none' || binanceCalculatorsWrapper.style.display === '') {
+                // Show Binance calculators, hide others
                 mainCalculators.style.display = 'none';
-                binanceCalculator.style.display = 'block'; // Use block for centering
+                binanceCalculatorsWrapper.style.display = 'flex'; /* Use flex for the wrapper */
                 binanceButton.textContent = 'Back to Financial Calculators';
                 binanceButton.style.backgroundColor = '#4a5568'; /* Darker gray for "Back" button */
                 binanceButton.style.boxShadow = '0 4px 10px rgba(74, 85, 104, 0.3)';
                 binanceButton.onmouseover = function() { this.style.backgroundColor = '#2d3748'; };
                 binanceButton.onmouseout = function() { this.style.backgroundColor = '#4a5568'; };
             } else {
-                // Hide Binance calculator, show others
+                // Hide Binance calculators, show others
                 mainCalculators.style.display = 'flex'; /* Revert to flex for grid layout */
-                binanceCalculator.style.display = 'none';
-                binanceButton.textContent = 'Binance Loan Calculator';
+                binanceCalculatorsWrapper.style.display = 'none';
+                binanceButton.textContent = 'Binance Calculators';
                 binanceButton.style.backgroundColor = '#F0B90B'; /* Binance Yellow */
                 binanceButton.style.boxShadow = '0 4px 10px rgba(240, 185, 11, 0.3)';
                 binanceButton.onmouseover = function() { this.style.backgroundColor = '#e0ac0a'; };
